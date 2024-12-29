@@ -5,3 +5,4 @@ To do this, first import the WriteAllSystemsAllSpins_PMMR.lua script into CARA a
 Next, run the WriteAssignments script the comes bundled with CARA's liquid protein NMR template. Copy that output into a str file.
 Following that, run the python program gaf6_generate_modifiedStr.py (create an empty output file first).
 None of this is super optimized, but it should just work.
+Oh, though you will need to adjust the number of systems (see line 41 of the python script).
