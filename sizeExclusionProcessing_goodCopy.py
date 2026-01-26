@@ -94,19 +94,23 @@ def process_all(input_dir, start_vol=5.0, end_vol=10.0):
 
         vol = data['volume']
 
-        # Locate indices corresponding to start and end volume for baseline region
-        idx_start = np.where(np.isclose(vol, start_vol, atol=0.05))[0]
-        idx_end = np.where(np.isclose(vol, end_vol, atol=0.05))[0]
+        # Locate indices corresponding to start and end volume for baseline region.
+        # These initial arrays have the indices of ALL instances of start_vol and end_vol volumes.
+        idx_start = np.where(np.isclose(vol, start_vol, atol=0.01))[0]
+        idx_end = np.where(np.isclose(vol, end_vol, atol=0.01))[0]
         if idx_start.size == 0 or idx_end.size == 0:
             raise ValueError(f"Missing baseline volume points ({start_vol} or {end_vol}) in {fn}")
-        start_idx = idx_start[0]
-        end_idx = idx_end[0]
+        start_idx = idx_start[0] # the first time we see start_vol
+        end_idx = idx_end[0] # the first time we see end_vol
         N = vol.size
 
         # Construct corrected volume axis so that all traces are aligned in volume space
-        region_len = end_idx - start_idx + 1
-        delta = (end_vol + 0.05 - (start_vol + 0.05)) / float(region_len - 1)
-        new_vol = start_vol + 0.05 + delta * (np.arange(N) - start_idx)
+        region_len = end_idx - start_idx
+        delta = (end_vol - start_vol) / float(region_len)
+        # The reason why we take 0.05 away from start_vol is because start_idx is the index of the FIRST time we see start_vol. The program
+        # rounds volumes to the nearest 0.1 mL, meaning the first time we see start_vol the program is rounding up - meaning the actual volume
+        # will be about 0.05 mL BELOW start_vol.
+        new_vol = (start_vol - 0.05) + delta * (np.arange(N) - start_idx)
 
         # Apply linear baseline correction for each absorbance channel
         for name, kind, _ in channels:
