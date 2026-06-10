@@ -79,7 +79,7 @@ Takes a protein amino acid sequence and prints it in a nicely formatted, numbere
    sequence = 'MRGSHHHHHHGS...'
    ```
    Replace the sequence between the quotes with your own protein sequence (single-letter amino acid codes, no spaces or line breaks).
-3. (Optional) Adjust `lineLength` if you want more or fewer residues per line. The default of `66` gives 60 amino acids per line.
+3. (Optional) Adjust `lineLength` if you want more or fewer residues per line. The default of `66` gives 60 amino acids per line (you need 11 characters to do a single block of 10 AA - 1 per AA and 1 extra for whitespace).
 4. Save the file and run it:
    ```bash
    python printProteinSequenceWithNumbering.py
@@ -90,11 +90,14 @@ Takes a protein amino acid sequence and prints it in a nicely formatted, numbere
 Text printed to your terminal that looks like this:
 
 ```
-        10          20          30          40          50          60
-MRGSHHHHHHG SGEFLATTLE RIEKNFVITD PRLPDNPIIF ASDSFLQLTE YSREEILGRN
+        10         20         30         40         50         60 
+MRGSHHHHHH GSGEFLATTL ERIEKNFVIT DPRLPDNPII FASDSFLQLT EYSREEILGR 
 
-        70          80          90
-CRFLQGPETD RATVRKIRDAI DNQTEVTVQL ...
+        70         80         90        100        110        120 
+NCRFLQGPET DRATVRKIRD AIDNQTEVTV QLINYTKSGK KFWNVFHLQP MRDYKGDVQY 
+
+       130        140        150        160 
+FIGVQLDGTE RLHGAAEREA VMLIKKTAFQ IAEAANDENY F
 ```
 
 Copy and paste this into your document.
@@ -115,7 +118,7 @@ Copy and paste this into your document.
 
 ### What it does
 
-Reads in multiple UV-Vis spectrum files (`.SP` format, as produced by some Cary or similar benchtop spectrophotometers), sorts them by timestamp, optionally zeros them at a reference wavelength, and writes all the spectra into a single tab-separated text file for easy plotting in Excel, Origin, or other software.
+Reads in multiple UV-Vis spectrum files (`.SP` format), sorts them by timestamp, optionally zeros them at a reference wavelength, and writes all the spectra into a single tab-separated text file for easy plotting in Excel, Igor Pro, or other software.
 
 ### How to use it
 
