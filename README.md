@@ -10,9 +10,9 @@ This guide is written for people who may not have much programming experience. I
 
 1. [Installation and Setup](#installation-and-setup)
 2. [Print Protein Sequence With Numbering](#print-protein-sequence-with-numbering)
-3. [Process Recovering Spectra (Timestamp)](#process-recovering-spectra-timestamp)
-4. [Process Various Spectra -- Plate Reader (Single Reads)](#process-various-spectra----plate-reader-single-reads)
-5. [Process Various Spectra -- Plate Reader (Time Course)](#process-various-spectra----plate-reader-time-course)
+3. [Process Spectra -- UV-Vis Spectrometer](#process-spectra----uv-vis-spectrometer)
+4. [Process Spectra -- Plate Reader (Single Cuvette Measurements)](#process-spectra----plate-reader-single-cuvette-measurements)
+5. [Other Spectra Scripts (Work in Progress)](#other-spectra-scripts-work-in-progress)
 6. [Size Exclusion Chromatography Processing](#size-exclusion-chromatography-processing)
 7. [Colour PDB by NMR Chemical Shift Perturbation](#colour-pdb-by-nmr-chemical-shift-perturbation)
 8. [Mass Spec Degraded Protein Identifier](#mass-spec-degraded-protein-identifier)
@@ -112,37 +112,37 @@ Copy and paste this into your document.
 
 ---
 
-## Process Recovering Spectra (Timestamp)
+## Process Spectra -- UV-Vis Spectrometer
 
-**Script:** `processRecoveringSpectra_timeStamp.py`
+**Script:** `processSpectra_uvVisSpectrometer.py`
+
+**This is one of the two main spectra-processing scripts you will use day-to-day.** Use it when you have collected spectra on the benchtop UV-Vis spectrometer (the standalone instrument that produces `.SP` files).
 
 ### What it does
 
-Reads in multiple UV-Vis spectrum files (`.SP` format), sorts them by timestamp, optionally zeros them at a reference wavelength, and writes all the spectra into a single tab-separated text file for easy plotting in Excel, Igor Pro, or other software.
+Reads in multiple `.SP` spectrum files from the UV-Vis spectrometer, sorts them by the timestamp embedded in each file, optionally zeros all spectra at a reference wavelength, and writes everything into a single tab-separated text file. The output is ready to open directly in Excel, Igor Pro, or any other plotting software.
 
 ### How to use it
 
-1. Place the script in the **same directory** as your `.SP` files.
-2. Open the script in a text editor and adjust these two settings:
-   - **Line 82** -- `required_name_start`: set this to a prefix string that all your files of interest share (e.g., `"TIOL"`). Only files whose names start with this string and end with `.SP` will be read. If you want all `.SP` files, set it to `""`.
-   - **Line 96** -- `wavelengthToZeroAt`: the wavelength (in nm) at which to zero all spectra (e.g., `550.0`). If you do not want to zero, comment out line 99 by putting `#` at the beginning.
-3. Run the script from that same directory:
+1. Copy the script into the **same folder** as your `.SP` data files.
+2. Open the script in a text editor and adjust two things:
+   - **Line 82** -- `required_name_start`: change `"TIOL"` to whatever prefix your files share (e.g., `"DrBphP"` if your files are named `DrBphP_001.SP`, `DrBphP_002.SP`, etc.). If you want to read in every `.SP` file in the folder, set it to `""` (empty quotes).
+   - **Line 96** -- `wavelengthToZeroAt`: the wavelength in nm at which to zero all spectra (default `550.0`). To skip zeroing, put a `#` at the start of line 99.
+3. Save the script and run it from that folder:
    ```bash
-   python processRecoveringSpectra_timeStamp.py
+   python processSpectra_uvVisSpectrometer.py
    ```
 
 ### What you get
 
-A tab-separated `.txt` file named `<prefix>_allWavelengths.txt` (e.g., `TIOL_allWavelengths.txt`). The file has:
-- Row 1: the source file names.
-- Row 2: wavelength labels in the first column, followed by the time (in minutes, relative to the first spectrum) for each spectrum.
-- Remaining rows: absorbance values for each wavelength and each spectrum.
-
-This file opens directly in Excel or can be imported into any plotting software.
+A tab-separated `.txt` file named `<prefix>_allWavelengths.txt` (e.g., `DrBphP_allWavelengths.txt`). Its layout is:
+- Row 1: source file names.
+- Row 2: time of each spectrum in minutes, relative to the first spectrum.
+- Remaining rows: one row per wavelength, with absorbance values across all spectra.
 
 ### Inputs
 
-- `.SP` text files from the spectrophotometer, all in one directory.
+- `.SP` text files from the UV-Vis spectrometer, all in one folder.
 
 ### Dependencies
 
@@ -150,69 +150,50 @@ This file opens directly in Excel or can be imported into any plotting software.
 
 ---
 
-## Process Various Spectra -- Plate Reader (Single Reads)
+## Process Spectra -- Plate Reader (Single Cuvette Measurements)
 
-**Script:** `processVariousSpectra_plateReader.py`
+**Script:** `processSpectra_plateReader_singleCuvetteMeasurements.py`
+
+**This is the other main spectra-processing script.** Use it when you have used the plate reader in cuvette mode and exported each measurement as a separate `.TXT` file.
 
 ### What it does
 
-A variant of the spectra-processing script adapted for **plate reader** text-file output. This version handles the case where you have **multiple individual cuvette readings** exported as separate `.TXT` files, each containing a single spectrum. It reads them all in, sorts them by timestamp, zeros at a reference wavelength, and combines them into one tab-separated output file.
+Reads in multiple `.TXT` spectrum files exported from the plate reader (one file per cuvette measurement), sorts them by the timestamp in each file, optionally zeros at a reference wavelength, and combines them into one tab-separated output file. The output format is identical to the UV-Vis spectrometer script above.
 
 ### How to use it
 
-1. Place the script in the **same directory** as your plate reader `.TXT` files.
-2. Open the script and adjust:
-   - **Line 83** -- `required_name_start`: a filename prefix filter (set to `""` to include all `.TXT` files).
-   - **Line 97** -- `wavelengthToZeroAt`: the zeroing wavelength (default is `800.0` nm). Comment out line 100 if you do not want zeroing.
-3. Run:
+1. Copy the script into the **same folder** as your `.TXT` data files.
+2. Open the script in a text editor and adjust two things:
+   - **Line 84** -- `required_name_start`: a filename prefix filter. By default this is `""`, which reads in all `.TXT` files in the folder. Change it to a specific prefix if you want to select only some files.
+   - **Line 98** -- `wavelengthToZeroAt`: the zeroing wavelength in nm (default `550.0`). To skip zeroing, put a `#` at the start of line 101.
+3. Save the script and run it from that folder:
    ```bash
-   python processVariousSpectra_plateReader.py
+   python processSpectra_plateReader_singleCuvetteMeasurements.py
    ```
 
 ### What you get
 
-A tab-separated file called `<prefix>_allWavelengths.txt`, structured the same way as described in the previous section.
+A tab-separated `.txt` file named `_allWavelengths.txt` (or `<prefix>_allWavelengths.txt` if you set a prefix). Same layout as described above: file names, timestamps, then absorbances by wavelength.
 
 ### Inputs
 
-- `.TXT` files exported from the plate reader (one spectrum per file, CSV-formatted internally).
+- `.TXT` files exported from the plate reader, one per measurement, all in one folder.
 
 ### Dependencies
 
-- `os` (standard library only).
+- `os` (standard library only -- no extra packages needed).
 
 ---
 
-## Process Various Spectra -- Plate Reader (Time Course)
+## Other Spectra Scripts (Work in Progress)
 
-**Script:** `processVariousSpectra_plateReader_timeCourse.py`
+**Folder:** `processSpectra_otherScripts/`
 
-### What it does
+This folder contains two older plate reader scripts that have not yet been fully verified to work correctly. They are kept here for reference but are **not recommended for routine use** until they have been tested. Ask Max if you think you need one of them.
 
-Another plate reader variant, specifically for when you have a **single kinetic run** and have exported multiple timepoint spectra as individual `.TXT` files. (This workflow exists because trying to export multiple spectra simultaneously can crash the plate reader software.) The script reads each file, extracts both the wall-clock time and the time-since-start-of-experiment from the file contents, sorts by true elapsed time, and combines everything into one output file.
+- **`processSpectra_plateReader_timeCourse.py`** -- intended for a single kinetic run where you exported multiple timepoint spectra as individual files. It extracts both the wall-clock timestamp and the time-since-experiment-start from each file and sorts by true elapsed time. (Note: the plate reader workflow that requires exporting spectra one at a time exists because exporting multiple spectra simultaneously can crash the plate reader software.)
 
-### How to use it
-
-1. Place the script in the **same directory** as your `.TXT` files.
-2. Open the script and adjust:
-   - **Line 97** -- `required_name_start`: filename prefix filter.
-   - **Line 111** -- `wavelengthToZeroAt`: zeroing wavelength (default `800.0` nm). Comment out line 114 if not wanted.
-3. Run:
-   ```bash
-   python processVariousSpectra_plateReader_timeCourse.py
-   ```
-
-### What you get
-
-Same output format as the other spectra processors: a tab-separated file with wavelengths vs. time.
-
-### Inputs
-
-- `.TXT` files from a plate reader time-course export (one file per timepoint).
-
-### Dependencies
-
-- `os` (standard library only).
+- **`processSpectra_plateReader_timeCourse_individualSpectra.py`** -- an earlier version of the single-cuvette-measurements script. It may not parse the plate reader file format correctly for all software versions.
 
 ---
 
@@ -437,9 +418,9 @@ Some manual editing of the output may be needed to fill in residue identities at
 | I want to...                                          | Use this script                                          |
 |-------------------------------------------------------|----------------------------------------------------------|
 | Print a protein sequence with residue numbering       | `printProteinSequenceWithNumbering.py`                   |
-| Combine spectra from the benchtop spectrophotometer   | `processRecoveringSpectra_timeStamp.py`                  |
-| Combine spectra from the plate reader (single reads)  | `processVariousSpectra_plateReader.py`                   |
-| Combine spectra from the plate reader (time course)   | `processVariousSpectra_plateReader_timeCourse.py`        |
+| Combine spectra from the benchtop UV-Vis spectrometer | `processSpectra_uvVisSpectrometer.py`                    |
+| Combine plate reader spectra (cuvette measurements)   | `processSpectra_plateReader_singleCuvetteMeasurements.py` |
+| Other plate reader workflows (unverified)             | `processSpectra_otherScripts/` (see section above)       |
 | Process and baseline-correct SEC/FPLC data            | `sizeExclusionProcessing_goodCopy.py`                    |
 | Colour a PDB structure by NMR perturbation data       | `colour_pdb/recolour_protein_GA17_updated.py` (in PyMOL) |
 | Identify a degradation fragment from mass spec        | `massSpecDegradedProteinIndentifier/calc_degradation_goodCopy.py` |
